@@ -136,16 +136,21 @@ public final class AHAudioPlayer: NSObject {
         var nowPlayingInfo = [String : Any]()
         nowPlayingInfo[MPMediaItemPropertyTitle] = self.delegate?.audioPlayerGetTrackTitle(self)
         nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = self.delegate?.audioPlayerGetAlbumTitle(self)
-        
+        let url = self.asset?.url
         self.delegate?.audioPlayerGetAlbumCover(self, { (image) in
+            let url = url
+            let thisUrl = self.asset?.url
+            guard url == thisUrl else {
+                return
+            }
             if let image = image {
                 if #available(iOS 10.0, *) {
-                    nowPlayingInfo[MPMediaItemPropertyArtwork] =
+                    MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyArtwork] =
                         MPMediaItemArtwork(boundsSize: image.size) { size in
                             return image
                     }
                 } else {
-                    nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: image)
+                    MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: image)
                 }
             }
         })
