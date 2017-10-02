@@ -21,7 +21,7 @@ import MediaPlayer
     func playerMangerGetNextTrackInfo(_ manager: AHAudioPlayerManager, currentTrackId: Int) -> [String: Any]
     func playerMangerGetTrackTitle(_ player: AHAudioPlayerManager, trackId: Int) -> String?
     func playerMangerGetAlbumTitle(_ player: AHAudioPlayerManager, trackId: Int) -> String?
-    func playerMangerGetAlbumCover(_ player: AHAudioPlayerManager,trackId: Int, _ callback: (_ coverImage: UIImage?)->Void)
+    func playerMangerGetAlbumCover(_ player: AHAudioPlayerManager,trackId: Int, _ callback: @escaping(_ coverImage: UIImage?)->Void)
 }
 
 
@@ -306,7 +306,7 @@ extension AHAudioPlayerManager: AHAudioPlayerDelegate {
         
         return self.delegate?.playerMangerGetAlbumTitle(self, trackId: id)
     }
-    public func audioPlayerGetAlbumCover(_ player: AHAudioPlayer, _ callback: (UIImage?) -> Void) {
+    public func audioPlayerGetAlbumCover(_ player: AHAudioPlayer, _ callback: @escaping (UIImage?) -> Void) {
         guard let item = self.playingItem else {
             callback(nil)
             return

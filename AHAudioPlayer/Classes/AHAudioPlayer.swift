@@ -69,7 +69,7 @@ public protocol AHAudioPlayerDelegate: class {
     
     func audioPlayerGetTrackTitle(_ player: AHAudioPlayer) -> String?
     func audioPlayerGetAlbumTitle(_ player: AHAudioPlayer) -> String?
-    func audioPlayerGetAlbumCover(_ player: AHAudioPlayer, _ callback: (_ coverImage: UIImage?)->Void)
+    func audioPlayerGetAlbumCover(_ player: AHAudioPlayer, _ callback: @escaping (_ coverImage: UIImage?)->Void)
 }
 extension AHAudioPlayerDelegate {
     public func audioPlayerWillStartToPlay(_ player: AHAudioPlayer){}
@@ -96,7 +96,7 @@ extension AHAudioPlayerDelegate {
     }
     public func audioPlayerGetTractTitle(_ player: AHAudioPlayer) -> String?{return nil}
     public func audioPlayerGetAlbumTitle(_ player: AHAudioPlayer) -> String?{return nil}
-    public func audioPlayerGetAlbumCover(_ player: AHAudioPlayer, _ callback: (_ coverImage: UIImage?)->Void) {callback(nil)}
+    public func audioPlayerGetAlbumCover(_ player: AHAudioPlayer, _ callback: @escaping (_ coverImage: UIImage?)->Void) {callback(nil)}
 }
 
 
