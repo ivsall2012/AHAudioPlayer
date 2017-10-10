@@ -131,16 +131,46 @@ public final class AHAudioPlayer: NSObject {
         }
     }
     
-    fileprivate func updateNowPlaying() {
+    fileprivate func updateNowPlaying(_ forceUpdate: Bool? = false) {
         // Define Now Playing Info
-        var nowPlayingInfo = [String : Any]()
-        nowPlayingInfo[MPMediaItemPropertyTitle] = self.delegate?.audioPlayerGetTrackTitle(self)
-        nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = self.delegate?.audioPlayerGetAlbumTitle(self)
-        let url = self.asset?.url
+        var nowPlayingInfo:[String: Any]? = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        if nowPlayingInfo == nil {
+            nowPlayingInfo = [String: Any]()
+        }
+        
+        nowPlayingInfo?[MPMediaItemPropertyTitle] = self.delegate?.audioPlayerGetTrackTitle(self)
+        nowPlayingInfo?[MPMediaItemPropertyAlbumTitle] = self.delegate?.audioPlayerGetAlbumTitle(self)
+        
+        
+        
+        nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = Double(self.currentTime)
+        nowPlayingInfo?[MPMediaItemPropertyPlaybackDuration] = Double(self.duration)
+        nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = Double(self.rate)
+        // Set the metadata
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    }
+
+    func updateArtwork() {
+        if let url = self.asset?.url.absoluteString,let thatURL = MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyAssetURL] as? String,
+            url == thatURL{
+            // the url was already set and thatURL is the same as current one.
+            return
+        }
+        let urlA = self.asset?.url.absoluteString
+        let thatURLA = MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyAssetURL]
+        
+        guard var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo,let url = self.asset?.url else {
+            return
+        }
+        nowPlayingInfo[MPMediaItemPropertyAssetURL] = url.absoluteString
         self.delegate?.audioPlayerGetAlbumCover(self, { (image) in
             let url = url
             let thisUrl = self.asset?.url
             guard url == thisUrl else {
+                return
+            }
+            guard MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyArtwork] == nil else {
+                // the artwork was already set, skipped!
                 return
             }
             if let image = image {
@@ -154,14 +184,7 @@ public final class AHAudioPlayer: NSObject {
                 }
             }
         })
-        
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = Double(self.currentTime)
-        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = Double(self.duration)
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = Double(self.rate)
-        // Set the metadata
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
-
     
     /// plackback progress in percentage
     public var progress: Double {
@@ -370,6 +393,7 @@ extension AHAudioPlayer {
         player.play()
         state = .playing
         self.updateNowPlaying()
+        self.updateArtwork()
         // reset isManuallyPaused
         isManuallyPaused = false
         self.delegate?.audioPlayerDidStartToPlay(self)
@@ -663,6 +687,7 @@ extension AHAudioPlayer {
             
             commandCenter.togglePlayPauseCommand.addTarget(handler: {[weak self]  (_) -> MPRemoteCommandHandlerStatus in
                 guard let strongSelf = self else {return .commandFailed}
+                self?.isPausedBeforeEnterBackground = false
                 if strongSelf.state == .paused {
                     strongSelf.resume()
                     return .success
@@ -679,10 +704,9 @@ extension AHAudioPlayer {
             // Add handler for Play Command
             commandCenter.playCommand.addTarget { [weak self] event in
                 guard let strongSelf = self else {return .commandFailed}
+                self?.isPausedBeforeEnterBackground = false
                 if strongSelf.state == .paused {
-                    strongSelf.isPausedBeforeEnterBackground = false
                     strongSelf.resume()
-                    strongSelf.isPausedBeforeEnterBackground = true
                     return .success
                 }else{
                     return .commandFailed
@@ -710,8 +734,10 @@ extension AHAudioPlayer {
             commandCenter.nextTrackCommand.addTarget( handler: {[weak self] (_) -> MPRemoteCommandHandlerStatus in
                 guard let strongSelf = self else {return .commandFailed}
                 guard let delegate = strongSelf.delegate else {return .commandFailed}
+                self?.isPausedBeforeEnterBackground = false
                 if delegate.audioPlayerShouldPlayNext(strongSelf) {
                     self?.updateNowPlaying()
+                    self?.updateArtwork()
                     return .success
                 }else{
                     return .commandFailed
@@ -721,8 +747,10 @@ extension AHAudioPlayer {
             commandCenter.previousTrackCommand.addTarget( handler: {[weak self] (_) -> MPRemoteCommandHandlerStatus in
                 guard let strongSelf = self else {return .commandFailed}
                 guard let delegate = strongSelf.delegate else {return .commandFailed}
+                self?.isPausedBeforeEnterBackground = false
                 if delegate.audioPlayerShouldPlayPrevious(strongSelf) {
                     self?.updateNowPlaying()
+                    self?.updateArtwork()
                     return .success
                 }else{
                     return .commandFailed
@@ -731,6 +759,7 @@ extension AHAudioPlayer {
             
             commandCenter.changePlaybackRateCommand.addTarget(handler: {[weak self] (_) -> MPRemoteCommandHandlerStatus in
                 guard let strongSelf = self else {return .commandFailed}
+                self?.isPausedBeforeEnterBackground = false
                 guard let delegate = strongSelf.delegate else {return .commandFailed}
                 if delegate.audioPlayerShouldChangePlaybackRate(strongSelf) {
                     return .success
@@ -742,6 +771,7 @@ extension AHAudioPlayer {
             
             commandCenter.seekForwardCommand.addTarget(handler: {[weak self] (_) -> MPRemoteCommandHandlerStatus in
                 guard let strongSelf = self else {return .commandFailed}
+                self?.isPausedBeforeEnterBackground = false
                 guard let delegate = strongSelf.delegate else {return .commandFailed}
                 if delegate.audioPlayerShouldSeekForward(strongSelf) {
                     return .success
@@ -752,6 +782,7 @@ extension AHAudioPlayer {
             
             commandCenter.seekBackwardCommand.addTarget(handler: {[weak self] (_) -> MPRemoteCommandHandlerStatus in
                 guard let strongSelf = self else {return .commandFailed}
+                self?.isPausedBeforeEnterBackground = false
                 guard let delegate = strongSelf.delegate else {return .commandFailed}
                 if delegate.audioPlayerShouldSeekBackward(strongSelf) {
                     return .success
@@ -766,7 +797,8 @@ extension AHAudioPlayer {
                 if self?.state == .paused {
                     self?.isPausedBeforeEnterBackground = true
                 }
-                self?.updateNowPlaying()
+                self?.updateNowPlaying(true)
+                self?.updateArtwork()
             })
             NotificationCenter.default.addObserver(forName: NSNotification.Name.UIApplicationDidBecomeActive, object: nil, queue: nil, using: {[weak self] (_) in
                 self?.isPausedBeforeEnterBackground = false
