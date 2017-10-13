@@ -228,6 +228,7 @@
 					};
 					607FACE41AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = MVFF28UQZP;
 						LastSwiftMigration = 0820;
 						TestTargetID = 607FACCF1AFB9204008FA782;
 					};
@@ -544,6 +545,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0528C42F6DE12387E9CB969E /* Pods-AHAudioPlayer_Tests.debug.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = MVFF28UQZP;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -564,6 +566,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C4AEB89B7E23B39AC85BA342 /* Pods-AHAudioPlayer_Tests.release.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = MVFF28UQZP;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
