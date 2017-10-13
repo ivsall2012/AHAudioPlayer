@@ -101,6 +101,9 @@ final class AHAudioPlayer: NSObject {
     }
     
     fileprivate func updateNowPlaying(_ forceUpdate: Bool? = false) {
+        guard self.duration > 0.0 else {
+            return
+        }
         // Define Now Playing Info
         var nowPlayingInfo:[String: Any]? = MPNowPlayingInfoCenter.default().nowPlayingInfo
         if nowPlayingInfo == nil {
@@ -185,7 +188,6 @@ final class AHAudioPlayer: NSObject {
             }
             let durationCM = playerItem.duration
             let durationSec = CMTimeGetSeconds(durationCM)
-            
             return durationSec
         }
     }
@@ -699,6 +701,7 @@ extension AHAudioPlayer {
                 guard let strongSelf = self else {return .commandFailed}
                 guard let delegate = strongSelf.delegate else {return .commandFailed}
                 self?.isPausedBeforeEnterBackground = false
+                self?.stop()
                 if delegate.audioPlayerShouldPlayNext(strongSelf) {
                     self?.updateNowPlaying()
                     self?.updateArtwork()
@@ -712,6 +715,7 @@ extension AHAudioPlayer {
                 guard let strongSelf = self else {return .commandFailed}
                 guard let delegate = strongSelf.delegate else {return .commandFailed}
                 self?.isPausedBeforeEnterBackground = false
+                self?.stop()
                 if delegate.audioPlayerShouldPlayPrevious(strongSelf) {
                     self?.updateNowPlaying()
                     self?.updateArtwork()

@@ -22,15 +22,17 @@ let speedStr = AHAudioPlayerManager.shared.rate.rawValue > 0 ? "\(AHAudioPlayerM
 ### Passive Monitoring
 #### A. Using delegate for updating local database and fetching datas for background mode
 ```Swift
+/// Update every 10s after the track startd to play.
 func playerManger(_ manager: AHAudioPlayerManager, updateForTrackId trackId: Int, duration: TimeInterval)
 
+/// Update every 10s after the track startd to play, additionally when paused, resume, and right before stop.
 func playerManger(_ manager: AHAudioPlayerManager, updateForTrackId trackId: Int, playedProgress: TimeInterval)
 
 ///###### The following five are for audio background mode
-/// Return a dict. It should include ["trackId": Int, 'trackURL': URL]
+/// Return a dict should include ['trackId': Int, 'trackURL': URL]. Return [:] if there's none or network is broken.
 func playerMangerGetPreviousTrackInfo(_ manager: AHAudioPlayerManager, currentTrackId: Int) -> [String: Any]
 
-/// Return a dict. It should include ["trackId": Int, 'trackURL': URL]
+/// Return a dict should include ['trackId': Int, 'trackURL': URL]. Return [:] if there's none or network is broken.
 func playerMangerGetNextTrackInfo(_ manager: AHAudioPlayerManager, currentTrackId: Int) -> [String: Any]
 
 func playerMangerGetTrackTitle(_ player: AHAudioPlayerManager, trackId: Int) -> String?

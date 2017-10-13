@@ -37,14 +37,17 @@ public enum AHAudioRateSpeed: Float {
 }
 
 @objc public protocol AHAudioPlayerMangerDelegate: class {
+    /// Update every 10s after the track startd to play.
     func playerManger(_ manager: AHAudioPlayerManager, updateForTrackId trackId: Int, duration: TimeInterval)
+    
+    /// Update every 10s after the track startd to play, additionally when paused, resume, and right before anything stop.
     func playerManger(_ manager: AHAudioPlayerManager, updateForTrackId trackId: Int, playedProgress: TimeInterval)
     
     ///###### The following five are for audio background mode
-    /// Return a dict should include ['trackId': Int, 'trackURL': URL]
+    /// Return a dict should include ['trackId': Int, 'trackURL': URL]. Return [:] if there's none or network is broken.
     func playerMangerGetPreviousTrackInfo(_ manager: AHAudioPlayerManager, currentTrackId: Int) -> [String: Any]
     
-    /// Return a dict should include ['trackId': Int, 'trackURL': URL]
+    /// Return a dict should include ['trackId': Int, 'trackURL': URL]. Return [:] if there's none or network is broken.
     func playerMangerGetNextTrackInfo(_ manager: AHAudioPlayerManager, currentTrackId: Int) -> [String: Any]
     
     func playerMangerGetTrackTitle(_ player: AHAudioPlayerManager, trackId: Int) -> String?
@@ -215,14 +218,13 @@ extension AHAudioPlayerManager {
     }
     
     public func stop() {
+        updateTrackPlayedProgress()
         AHAudioPlayer.shared.stop()
         
         if timer != nil {
             timer?.invalidate()
             timer = nil
         }
-        
-        updateTrackPlayedProgress()
     }
     
     public func seekBackward() {
