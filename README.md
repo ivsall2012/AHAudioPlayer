@@ -1,5 +1,17 @@
 # AHAudioPlayer
+AHAudioPlayer has standard audio players' functionalities.  
+Additionally, it handles most of background related works for you.  
+The only thing you need to do is to implement its delegate to provide info for background mode.  
+![](https://github.com/ivsall2012/AHAudioPlayer/blob/master/demo.gif)
+
 ## Usage
+### In Xcode, turn on background modes for your target first.
+![](https://github.com/ivsall2012/AHAudioPlayer/blob/master/background_modes.png)
+
+### If any of tracks you are using is through http, then you need to modify your info.plist. See this https://stackoverflow.com/questions/30731785/how-do-i-load-an-http-url-with-app-transport-security-enabled-in-ios-9
+
+### Note: The latest simulators come with Xcode9 seem to have some problem with pause when in background. Try it out on real device if you can.
+
 ### Play
 ```Swift
 let url = URL(string: "https://mp3l.jamendo.com/?trackid=887202&format=mp31&from=app-devsite")
