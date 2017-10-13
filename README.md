@@ -1,16 +1,65 @@
 # AHAudioPlayer
+## Usage
+### Play
+```Swift
+let url = URL(string: "https://mp3l.jamendo.com/?trackid=887202&format=mp31&from=app-devsite")
+AHAudioPlayerManager.shared.play(trackId: 0, trackURL: url!)
+```
 
-[![CI Status](http://img.shields.io/travis/ivsall2012/AHAudioPlayer.svg?style=flat)](https://travis-ci.org/ivsall2012/AHAudioPlayer)
-[![Version](https://img.shields.io/cocoapods/v/AHAudioPlayer.svg?style=flat)](http://cocoapods.org/pods/AHAudioPlayer)
-[![License](https://img.shields.io/cocoapods/l/AHAudioPlayer.svg?style=flat)](http://cocoapods.org/pods/AHAudioPlayer)
-[![Platform](https://img.shields.io/cocoapods/p/AHAudioPlayer.svg?style=flat)](http://cocoapods.org/pods/AHAudioPlayer)
+### Acive Monitoring for UI related components
+```Swift
+let timer = Timer(timeInterval: 0.1, target: self, selector: #selector(updatePlayer), userInfo: nil, repeats: true)
+RunLoop.main.add(timer!, forMode: .commonModes)
 
+func updatePlayer() {
+let loadedProgress = CGFloat(AHAudioPlayerManager.shared.loadedProgress)
+let progress = AHAudioPlayerManager.shared.progress
+let currentTime = AHAudioPlayerManager.shared.currentTimePretty
+let duration = AHAudioPlayerManager.shared.durationPretty
+let speedStr = AHAudioPlayerManager.shared.rate.rawValue > 0 ? "\(AHAudioPlayerManager.shared.rate.rawValue)x" : "1.0x"
+}
+```
+### Passive Monitoring
+#### A. Using delegate for updating local database and fetching datas for background mode
+```Swift
+func playerManger(_ manager: AHAudioPlayerManager, updateForTrackId trackId: Int, duration: TimeInterval)
+
+func playerManger(_ manager: AHAudioPlayerManager, updateForTrackId trackId: Int, playedProgress: TimeInterval)
+
+///###### The following five are for audio background mode
+/// Return a dict. It should include ["trackId": Int, 'trackURL': URL]
+func playerMangerGetPreviousTrackInfo(_ manager: AHAudioPlayerManager, currentTrackId: Int) -> [String: Any]
+
+/// Return a dict. It should include ["trackId": Int, 'trackURL': URL]
+func playerMangerGetNextTrackInfo(_ manager: AHAudioPlayerManager, currentTrackId: Int) -> [String: Any]
+
+func playerMangerGetTrackTitle(_ player: AHAudioPlayerManager, trackId: Int) -> String?
+
+func playerMangerGetAlbumTitle(_ player: AHAudioPlayerManager, trackId: Int) -> String?
+
+func playerMangerGetAlbumCover(_ player: AHAudioPlayerManager,trackId: Int, _ callback: @escaping(_ coverImage: UIImage?)->Void)
+///######
+```
+
+#### B. Using notification for specific UI components to react to events sent out by the playerManger
+```Swift
+public let AHAudioPlayerDidStartToPlay = Notification.Name("AHAudioPlayerDidStartToPlay")
+
+public let AHAudioPlayerDidChangeState = Notification.Name("AHAudioPlayerDidChangeState")
+
+/// Sent every time a track is being played
+public let AHAudioPlayerDidSwitchPlay = Notification.Name("AHAudioPlayerDidSwitchPlay")
+
+public let AHAudioPlayerDidReachEnd = Notification.Name("AHAudioPlayerDidReachEnd")
+
+public let AHAudioPlayerFailedToReachEnd = Notification.Name("AHAudioPlayerFailedToReachEnd")
+```
 ## Example
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
 ## Requirements
-
+iOS 8.0+
 ## Installation
 
 AHAudioPlayer is available through [CocoaPods](http://cocoapods.org). To install
@@ -22,8 +71,9 @@ pod "AHAudioPlayer"
 
 ## Author
 
-ivsall2012, ivsall2012@gmail.com
+Andy Tong, ivsall2012@gmail.com
 
 ## License
 
 AHAudioPlayer is available under the MIT license. See the LICENSE file for more info.
+

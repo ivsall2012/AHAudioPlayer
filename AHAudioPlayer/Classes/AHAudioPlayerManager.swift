@@ -9,19 +9,50 @@
 import Foundation
 import MediaPlayer
 
+public let AHAudioPlayerDidStartToPlay = Notification.Name("AHAudioPlayerDidStartToPlay")
+
+public let AHAudioPlayerDidChangeState = Notification.Name("AHAudioPlayerDidChangeState")
+
+/// Sent every time a track is being played
+public let AHAudioPlayerDidSwitchPlay = Notification.Name("AHAudioPlayerDidSwitchPlay")
+
+public let AHAudioPlayerDidReachEnd = Notification.Name("AHAudioPlayerDidReachEnd")
+
+public let AHAudioPlayerFailedToReachEnd = Notification.Name("AHAudioPlayerFailedToReachEnd")
+
+public enum AHAudioPlayerState {
+    case none
+    case loading
+    case playing
+    case stopped
+    case paused
+}
+
+public enum AHAudioRateSpeed: Float {
+    case one = 1.0
+    case one_two_five = 1.25
+    case one_five = 1.5
+    case one_seven_five = 1.75
+    case two = 2.0
+}
 
 @objc public protocol AHAudioPlayerMangerDelegate: class {
     func playerManger(_ manager: AHAudioPlayerManager, updateForTrackId trackId: Int, duration: TimeInterval)
     func playerManger(_ manager: AHAudioPlayerManager, updateForTrackId trackId: Int, playedProgress: TimeInterval)
     
-    /// The following five are for audio background mode
-    /// Both requiring the delegate to return a dict [trackId: id, trackURL: URL]
-    /// trackId is Int, trackURL is URL
+    ///###### The following five are for audio background mode
+    /// Return a dict should include ['trackId': Int, 'trackURL': URL]
     func playerMangerGetPreviousTrackInfo(_ manager: AHAudioPlayerManager, currentTrackId: Int) -> [String: Any]
+    
+    /// Return a dict should include ['trackId': Int, 'trackURL': URL]
     func playerMangerGetNextTrackInfo(_ manager: AHAudioPlayerManager, currentTrackId: Int) -> [String: Any]
+    
     func playerMangerGetTrackTitle(_ player: AHAudioPlayerManager, trackId: Int) -> String?
+    
     func playerMangerGetAlbumTitle(_ player: AHAudioPlayerManager, trackId: Int) -> String?
+    
     func playerMangerGetAlbumCover(_ player: AHAudioPlayerManager,trackId: Int, _ callback: @escaping(_ coverImage: UIImage?)->Void)
+    ///######
 }
 
 
@@ -39,6 +70,11 @@ struct PlayerItem: Equatable {
 
 public class AHAudioPlayerManager: NSObject {
     public static let shared = AHAudioPlayerManager()
+    
+    public override init() {
+        super.init()
+        AHAudioPlayer.shared.delegate = self
+    }
     
     public weak var delegate: AHAudioPlayerMangerDelegate?
     
@@ -133,8 +169,6 @@ extension AHAudioPlayerManager {
     /// toProgress should be in seconds, NOT in percentage.
     public func play(trackId: Int?, trackURL: URL, toTime: TimeInterval? = nil) {
         self.playingItem = PlayerItem(id: trackId, url: trackURL, image: nil)
-        
-        AHAudioPlayer.shared.delegate = self
         
         if timer != nil {
             timer?.invalidate()
@@ -242,11 +276,11 @@ extension AHAudioPlayerManager: AHAudioPlayerDelegate {
         updateTrackPlayedProgress()
     }
     
-    public func audioPlayerDidStartToPlay(_ player: AHAudioPlayer) {
+    func audioPlayerDidStartToPlay(_ player: AHAudioPlayer) {
         updateTrackPlayedProgress()
         updateTrackDuration()
     }
-    public func audioPlayerDidReachEnd(_ player: AHAudioPlayer) {
+    func audioPlayerDidReachEnd(_ player: AHAudioPlayer) {
         stop()
         
         guard let nextItem = self.getNextItem() else {
@@ -256,7 +290,7 @@ extension AHAudioPlayerManager: AHAudioPlayerDelegate {
         self.play(trackId: nextItem.id, trackURL: nextItem.url)
     }
     
-    public func audioPlayerShouldPlayNext(_ player: AHAudioPlayer) -> Bool{
+    func audioPlayerShouldPlayNext(_ player: AHAudioPlayer) -> Bool{
         guard let nextItem = self.getNextItem() else {
             return false
         }
@@ -265,7 +299,7 @@ extension AHAudioPlayerManager: AHAudioPlayerDelegate {
         self.play(trackId: nextItem.id, trackURL: nextItem.url)
         return true
     }
-    public func audioPlayerShouldPlayPrevious(_ player: AHAudioPlayer) -> Bool{
+    func audioPlayerShouldPlayPrevious(_ player: AHAudioPlayer) -> Bool{
         guard let previousItem = self.getPrevisouItem() else {
             return false
         }
@@ -274,20 +308,20 @@ extension AHAudioPlayerManager: AHAudioPlayerDelegate {
         self.play(trackId: previousItem.id, trackURL: previousItem.url)
         return true
     }
-    public func audioPlayerShouldChangePlaybackRate(_ player: AHAudioPlayer) -> Bool{
+    func audioPlayerShouldChangePlaybackRate(_ player: AHAudioPlayer) -> Bool{
         self.changeToNextRate()
         return true
     }
-    public func audioPlayerShouldSeekForward(_ player: AHAudioPlayer) -> Bool{
+    func audioPlayerShouldSeekForward(_ player: AHAudioPlayer) -> Bool{
         seekForward()
         return true
     }
-    public func audioPlayerShouldSeekBackward(_ player: AHAudioPlayer) -> Bool{
+    func audioPlayerShouldSeekBackward(_ player: AHAudioPlayer) -> Bool{
         seekBackward()
         return true
     }
     
-    public func audioPlayerGetTrackTitle(_ player: AHAudioPlayer) -> String?{
+    func audioPlayerGetTrackTitle(_ player: AHAudioPlayer) -> String?{
         guard let item = self.playingItem else {
             return nil
         }
@@ -296,7 +330,7 @@ extension AHAudioPlayerManager: AHAudioPlayerDelegate {
         }
         return self.delegate?.playerMangerGetTrackTitle(self, trackId: id)
     }
-    public func audioPlayerGetAlbumTitle(_ player: AHAudioPlayer) -> String?{
+    func audioPlayerGetAlbumTitle(_ player: AHAudioPlayer) -> String?{
         guard let item = self.playingItem else {
             return nil
         }
@@ -306,7 +340,7 @@ extension AHAudioPlayerManager: AHAudioPlayerDelegate {
         
         return self.delegate?.playerMangerGetAlbumTitle(self, trackId: id)
     }
-    public func audioPlayerGetAlbumCover(_ player: AHAudioPlayer, _ callback: @escaping (UIImage?) -> Void) {
+    func audioPlayerGetAlbumCover(_ player: AHAudioPlayer, _ callback: @escaping (UIImage?) -> Void) {
         guard let item = self.playingItem else {
             callback(nil)
             return

@@ -314,24 +314,10 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-AHAudioPlayer_Example/Pods-AHAudioPlayer_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/AHAudioPlayer/AHAudioPlayer.framework",
-				"${BUILT_PRODUCTS_DIR}/AHDataModel/AHDataModel.framework",
-				"${BUILT_PRODUCTS_DIR}/AHFMDataCenter/AHFMDataCenter.framework",
-				"${BUILT_PRODUCTS_DIR}/AHFMNetworking/AHFMNetworking.framework",
-				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/KeychainAccess/KeychainAccess.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
-				"${BUILT_PRODUCTS_DIR}/UIDeviceExtension/UIDeviceExtension.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AHAudioPlayer.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AHDataModel.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AHFMDataCenter.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AHFMNetworking.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainAccess.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/UIDeviceExtension.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

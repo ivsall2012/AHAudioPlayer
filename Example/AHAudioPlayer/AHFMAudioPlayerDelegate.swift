@@ -48,7 +48,7 @@ class AHFMAudioPlayerDelegate: NSObject, AHAudioPlayerMangerDelegate {
     func playerMangerGetAlbumTitle(_ player: AHAudioPlayerManager, trackId: Int) -> String?{
         return nil
     }
-    func playerMangerGetAlbumCover(_ player: AHAudioPlayerManager, trackId: Int, _ callback: (_ coverImage: UIImage?)->Void){
+    func playerMangerGetAlbumCover(_ player: AHAudioPlayerManager, trackId: Int, _ callback: @escaping (_ coverImage: UIImage?)->Void){
         callback(getAlbumnCover(trackId: trackId))
     }
 }
