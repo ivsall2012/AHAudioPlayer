@@ -136,10 +136,6 @@ final class AHAudioPlayer: NSObject {
             guard url == thisUrl else {
                 return
             }
-            guard MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyArtwork] == nil else {
-                // the artwork was already set, skipped!
-                return
-            }
             if let image = image {
                 if #available(iOS 10.0, *) {
                     MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyArtwork] =
